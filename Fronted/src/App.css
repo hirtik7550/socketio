@@ -1,0 +1,10 @@
+.main {
+  width: 500px;
+  height: 500px;
+  border: 1px solid !important;
+}
+
+.main_user {
+  border: 1px solid;
+  width: 200px;
+}
