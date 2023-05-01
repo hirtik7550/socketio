@@ -6,26 +6,26 @@ const io = require("socket.io")(4000, {
 
 var user = [];
 io.on("connection", (socket) => {
-    socket.on("user join", (cb) => {
-        cb(user);
-        user.push(socket.id);
+    socket.on("user join", (name, cb) => {
+        const username = { id: socket.id, name }
+        user.push(username);
+        console.log("username0", username)
         socket.broadcast.emit("response", user);
+        cb(user);
     });
 
-    console.log(socket.id);
-    socket.on("send-message", (message, room) => {
-        if (room) {
-            socket.to(room).emit("receive-message", message);
+    socket.on("send-message", (message, datauser) => {
+        if (datauser.id) {
+            socket.to(datauser.id).emit("receive-message", message);
         } else {
             socket.broadcast.emit("receive-message", message);
         }
     });
 
     socket.on("disconnect", () => {
-        user = user.filter((i) => i !== socket.id);
+        user = user.filter((i) => i.id !== socket.id);
         socket.broadcast.emit("response", user);
+        console.log(user);
     });
-    socket.on("typing", (user) => {
-        socket.broadcast.emit("typing", user);
-    });
+
 });
