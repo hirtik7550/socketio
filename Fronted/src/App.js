@@ -6,8 +6,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Form, Formik } from "formik";
+import Message from "./Message.js";
 import * as Yup from "yup";
-import Message from "./Message";
 
 const socket = io("http://localhost:4000");
 function App() {
@@ -20,11 +20,10 @@ function App() {
   const [show, setShow] = useState(true);
 
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
   useEffect(() => {
-    socket.on("receive-message", (message, id) => {
+    socket.on("receive-message", (message) => {
       setmessages((o) => [...o, message]);
-
+      setuserText(socket.id);
     });
 
     socket.on("response", (user) => {
@@ -40,18 +39,13 @@ function App() {
     e.preventDefault();
     const message = messageInput?.current.value;
     if (message === "") return;
-    setmessages((o) => [...o, message]);
-    socket.emit("send-message", message, datauser);
+
+    const messageWithUser = { message, reciever: datauser.id, sender: socket.id }
+    setmessages((o) => [...o, messageWithUser]);
+    socket.emit("send-message", messageWithUser);
     messageInput.current.value = "";
-
+    console.log(socket.id);
   };
-
-  // function displayMessage(message) {
-  //   const div = document.createElement("div");
-  //   div.textContent = message
-  //   document.getElementById("messagecontainer").append(div);
-  //   console.log();
-  // }main_navbar
 
   const validationSchema = Yup.object({
     name: Yup.string().required("required"),
@@ -86,12 +80,12 @@ function App() {
         </div>
         <div className="main position-relative ">
           <div className="chatBox d-inline-block">
-            {messages.map((item, id) => {
-              if (userText === id) {
-                console.log("userText....", id);
-                return <div className="message right">{`${item}`}</div>;
+            {messages.map((item) => {
+              console.log("item...".item);
+              if (item.sender === socket.id) {
+                return (<div className="w-100"><div className={"right"}>{`${item.message}`}</div></div>)
               } else {
-                return <div className="message left">{`${item}`}</div>;
+                return <div className={"left"}>{`${item.message}`}</div>;
               }
             })}
           </div>
