@@ -59,14 +59,12 @@
   background-color: gray;
   float: right;
   word-wrap: break-word;
-  width: 100%;
 }
 
 .left {
   background-color: rgb(255, 180, 180);
   float: left;
   word-wrap: break-word;
-  width: 100%;
 }
 
 .message {
@@ -79,5 +77,13 @@
 }
 
 .div_right {
-  margin-left: 500px;
+  /* position: absolute; */
+  right: 0;
+  padding: 50px;
+  font-size: 20px;
+}
+
+.div_left {
+  padding: 50px;
+  font-size: 20px;
 }

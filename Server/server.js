@@ -5,7 +5,7 @@ const io = require("socket.io")(4000, {
 });
 
 var user = [];
-
+var messageuser = [];
 io.on("connection", (socket) => {
     socket.on("user join", (name, cb) => {
         const username = { id: socket.id, name };
@@ -15,9 +15,15 @@ io.on("connection", (socket) => {
     });
 
     socket.on("send-message", (datauser) => {
-        if (datauser) {
-            socket.to(datauser.reciever).emit("receive-message", datauser);
+        const userMessage = { id: socket.id, reciever: datauser.message, userr: user[1].name };
+
+        console.log(userMessage);
+        if (messageuser[user]) {
+            messageuser[user].push(userMessage);
+        } else {
+            messageuser[user] = [userMessage];
         }
+        socket.to(datauser.reciever).emit("receive-message", datauser);
     });
 
     socket.on("disconnect", () => {

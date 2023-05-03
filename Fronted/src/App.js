@@ -6,7 +6,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Form, Formik } from "formik";
-import Message from "./Message.js";
 import * as Yup from "yup";
 
 const socket = io("http://localhost:4000");
@@ -19,7 +18,12 @@ function App() {
   const [userText, setuserText] = useState([]);
   const [show, setShow] = useState(true);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    if (datauser.name !== '') {
+
+      setShow(false)
+    }
+  };
   useEffect(() => {
     socket.on("receive-message", (message) => {
       setmessages((o) => [...o, message]);
@@ -35,12 +39,20 @@ function App() {
     });
   }, []);
 
+
+
   const form = (e) => {
     e.preventDefault();
     const message = messageInput?.current.value;
     if (message === "") return;
 
-    const messageWithUser = { message, reciever: datauser.id, sender: socket.id }
+    const messageWithUser = {
+      message,
+      reciever: datauser.id,
+      sender: socket.id,
+      name,
+    };
+    console.log("messageWithUser..", messageWithUser);
     setmessages((o) => [...o, messageWithUser]);
     socket.emit("send-message", messageWithUser);
     messageInput.current.value = "";
@@ -79,18 +91,29 @@ function App() {
           })}
         </div>
         <div className="main position-relative ">
-          <div className="chatBox d-inline-block">
+          <div className="chatBox d-inline-block container">
             {messages.map((item) => {
               console.log("item...".item);
-              if (item.sender === socket.id) {
-                return (<div className="w-100"><div className={"right"}>{`${item.message}`}</div></div>)
+              if (
+                item.sender === socket.id || item.id === socket.id ? "" : item.sender
+              ) {
+                return (
+                  <div className="div_left ">
+                    <div className={"left"}>{`${name}:${item.message}`}</div>
+                  </div>
+                );
               } else {
-                return <div className={"left"}>{`${item.message}`}</div>;
+                return (
+                  <div className="div_right ">
+                    <div className={"right"}>{`You:${item.message}`}</div>
+                  </div>
+                );
               }
             })}
           </div>
           <div className="position-absolute w-100 border border-1 p-3 top-navbar ">
             <h4>{datauser.name}</h4>
+            {console.log(datauser.name)}
           </div>
           <form
             onSubmit={form}
@@ -111,7 +134,9 @@ function App() {
           }}
           validationSchema={validationSchema}
           onSubmit={(values, { setSubmitting }) => {
-            setSubmitting(true);
+            if (values.name) {
+              setSubmitting(true);
+            }
             inputname(values);
           }}
         >
@@ -147,7 +172,7 @@ function App() {
               </div>
               <Modal.Footer>
                 <Button variant="primary" type="submit" onClick={handleClose}>
-                  Save Changes
+                  Save
                 </Button>
               </Modal.Footer>
             </Form>
